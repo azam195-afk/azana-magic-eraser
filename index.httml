@@ -145,7 +145,7 @@
         // ==========================================
         // API KEY DISEDIAKAN OTOMATIS OLEH SISTEM PREVIEW
         // ==========================================
-        const apiKey = ""; 
+        const apiKey = "AIzaSyCS7QD0MVfPjDBK5cP9AM0cpk-REzFUvcU"; 
         // ==========================================
 
         const fileInput = document.getElementById('file-input');
