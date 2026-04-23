@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AZANA Magic Eraser - Hapus Objek AI</title>
+    <title>AZANA Magic Eraser - Hapus Objek</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
@@ -22,12 +22,10 @@
         body { background-color: #0a0a0f; color: #cbd5e1; overscroll-behavior-y: contain; }
         .glass-card { background: rgba(19, 19, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0, 242, 254, 0.2); }
         
-        /* Area Kanvas */
         .canvas-wrapper { position: relative; display: inline-block; max-width: 100%; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 0 20px rgba(0, 242, 254, 0.15); cursor: crosshair; }
         #image-canvas { display: block; max-width: 100%; height: auto; }
         #draw-canvas { position: absolute; top: 0; left: 0; touch-action: none; width: 100%; height: 100%; }
         
-        /* Kaca Pembesar (Loupe) */
         #magnifier { 
             width: 110px; height: 110px; 
             border-radius: 50%; border: 3px solid #00f2fe; 
@@ -37,12 +35,10 @@
         }
         #loupe-canvas { width: 100%; height: 100%; border-radius: 50%; }
 
-        /* Range Slider Kuas */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #00f2fe; cursor: pointer; box-shadow: 0 0 10px #00f2fe; margin-top: -8px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #1c1c26; border-radius: 2px; border: 1px solid rgba(0,242,254,0.3); }
 
-        /* Loader */
         .loader-pulse { animation: pulseGlow 1.5s infinite alternate; }
         @keyframes pulseGlow { 0% { opacity: 0.6; filter: drop-shadow(0 0 5px #00f2fe); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #a855f7); } }
     </style>
@@ -67,7 +63,7 @@
                 AZANA <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple">MAGIC ERASER</span>
             </h1>
         </div>
-        <p class="text-slate-400 text-xs md:text-sm max-w-lg mx-auto">Usap objek yang mengganggu dengan kuas aurora. AI kami akan membersihkannya!</p>
+        <p class="text-slate-400 text-xs md:text-sm max-w-lg mx-auto">Powered by Pro AI Server. Usap objek yang mengganggu dengan kuas aurora.</p>
     </header>
 
     <main class="w-full max-w-4xl glass-card rounded-2xl p-4 md:p-8 shadow-2xl relative overflow-hidden flex flex-col items-center">
@@ -82,18 +78,16 @@
         </div>
 
         <div id="editor-area" class="hidden w-full flex-col items-center">
-            
             <div class="w-full max-w-md flex items-center justify-between gap-3 mb-4 bg-dark-900 p-3 rounded-lg border border-dark-700">
                 <div class="flex items-center gap-3 flex-grow">
                     <i class="fas fa-paint-brush text-neon-cyan text-sm"></i>
                     <input type="range" id="brush-size" min="10" max="80" value="30" class="flex-grow w-full">
                 </div>
-                
                 <div class="flex items-center gap-2">
-                    <button id="btn-undo" class="text-xs text-yellow-400 hover:text-yellow-300 px-3 py-2 bg-yellow-400/10 rounded border border-yellow-400/30 transition whitespace-nowrap" title="Kembali 1 Langkah">
+                    <button id="btn-undo" class="text-xs text-yellow-400 hover:text-yellow-300 px-3 py-2 bg-yellow-400/10 rounded border border-yellow-400/30 transition whitespace-nowrap" title="Kembali">
                         <i class="fas fa-undo"></i>
                     </button>
-                    <button id="btn-clear" class="text-xs text-red-400 hover:text-red-300 px-3 py-2 bg-red-400/10 rounded border border-red-400/30 transition whitespace-nowrap" title="Hapus Semua Coretan">
+                    <button id="btn-clear" class="text-xs text-red-400 hover:text-red-300 px-3 py-2 bg-red-400/10 rounded border border-red-400/30 transition whitespace-nowrap" title="Hapus Semua">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -116,7 +110,7 @@
 
         <div id="result-area" class="hidden w-full flex-col items-center mt-6 border-t border-dark-700 pt-8">
             <div class="w-12 h-1 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full mb-4"></div>
-            <h3 class="text-white font-tech tracking-widest text-xl uppercase mb-6 font-bold"><i class="fas fa-check-circle text-neon-cyan mr-2"></i>Hasil AI Azana</h3>
+            <h3 class="text-white font-tech tracking-widest text-xl uppercase mb-6 font-bold"><i class="fas fa-check-circle text-neon-cyan mr-2"></i>Hasil Akhir</h3>
             
             <div class="relative rounded-lg overflow-hidden shadow-[0_0_25px_rgba(168,85,247,0.3)] mb-6 border border-dark-600">
                 <img id="result-image" src="" alt="Hasil Akhir" class="max-w-full h-auto">
@@ -126,7 +120,6 @@
                 <i class="fas fa-download mr-2"></i>Simpan Gambar HD
             </a>
         </div>
-
     </main>
 
     <div id="notification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-dark-800 border border-neon-cyan text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(0,242,254,0.3)] transform translate-y-full opacity-0 transition-all duration-300 z-[100] text-center text-sm font-bold w-[90%] max-w-sm pointer-events-none flex items-center justify-center gap-2">
@@ -136,9 +129,9 @@
 
     <script>
         // ==========================================
-        // API KEY AZANA SUDAH TERPASANG BOS!
+        // API KEY CLIPDROP AZANA DESIGN
         // ==========================================
-        const apiKey = "AIzaSyCS7QD0MVfPjDBK5cP9AM0cpk-REzFUvcU"; 
+        const CLIPDROP_API_KEY = "ae50f97a39406075707c40fceeedbf31d9e385681146fcdceba4622d82045781742d2979374fa558a7bb8b8eee4642fa"; 
         // ==========================================
 
         const fileInput = document.getElementById('file-input');
@@ -168,11 +161,8 @@
         let isDrawing = false;
         let imageObj = new Image();
         let hue = 180; let hueDirection = 1;
-        
-        // Variabel untuk History Undo
         let brushHistory = [];
 
-        // Fungsi Tampilkan Notifikasi Elegan
         function showNotification(msg, isError = false) {
             notifText.innerText = msg;
             if (isError) {
@@ -188,7 +178,6 @@
             setTimeout(() => { notif.classList.add('translate-y-full', 'opacity-0'); }, 4000);
         }
 
-        // 1. UPLOAD & SETUP KANVAS
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(!file) return;
@@ -218,7 +207,6 @@
             drawCanvas.width = w; drawCanvas.height = h;
             ctxDraw.lineCap = 'round'; ctxDraw.lineJoin = 'round'; ctxDraw.shadowBlur = 10;
             
-            // Reset & Simpan state awal kanvas kosong
             brushHistory = [];
             saveState();
         }
@@ -235,35 +223,24 @@
             };
         }
 
-        // --- SISTEM UNDO & HISTORY ---
         function saveState() {
-            // Batasi memori (maksimal simpan 15 langkah)
-            if (brushHistory.length > 15) {
-                brushHistory.shift(); 
-            }
-            // Simpan gambar kanvas saat ini
+            if (brushHistory.length > 15) brushHistory.shift(); 
             brushHistory.push(ctxDraw.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
         }
 
         btnUndo.addEventListener('click', () => {
             if (brushHistory.length > 1) {
-                brushHistory.pop(); // Buang state saat ini
-                const prevState = brushHistory[brushHistory.length - 1]; // Ambil yang sebelumnya
-                ctxDraw.putImageData(prevState, 0, 0); // Terapkan
-            } else {
-                showNotification("Sudah kembali ke awal!", false);
-            }
+                brushHistory.pop();
+                ctxDraw.putImageData(brushHistory[brushHistory.length - 1], 0, 0); 
+            } else showNotification("Sudah kembali ke awal!", false);
         });
 
         btnClear.addEventListener('click', () => {
             ctxDraw.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            brushHistory = [];
-            saveState(); // Simpan state kosong lagi
+            brushHistory = []; saveState();
             showNotification("Coretan dibersihkan", false);
         });
-        // ------------------------------
 
-        // 2. LOGIKA KACA PEMBESAR & MENGGAMBAR (AURORA BRUSH)
         function updateMagnifier(pos) {
             const zoom = 2; const loupeSize = 110;
             magnifier.style.left = pos.screenX + 'px'; magnifier.style.top = pos.screenY + 'px';
@@ -275,134 +252,102 @@
             ctxLoupe.drawImage(drawCanvas, srcX, srcY, srcW, srcH, 0, 0, loupeSize, loupeSize);
         }
 
-        function startPosition(e) { 
-            e.preventDefault(); 
-            isDrawing = true; 
-            magnifier.classList.remove('hidden'); 
-            draw(e); 
-        }
-        
+        function startPosition(e) { e.preventDefault(); isDrawing = true; magnifier.classList.remove('hidden'); draw(e); }
         function endPosition(e) { 
-            e.preventDefault(); 
-            if (!isDrawing) return;
-            isDrawing = false; 
-            magnifier.classList.add('hidden'); 
-            ctxDraw.beginPath(); 
-            
-            // Saat jari diangkat, simpan history buat Undo
-            saveState();
+            e.preventDefault(); if (!isDrawing) return;
+            isDrawing = false; magnifier.classList.add('hidden'); ctxDraw.beginPath(); saveState();
         }
-        
         function draw(e) {
             if (!isDrawing) return; e.preventDefault();
             const pos = getPos(e);
             
-            // Animasi Warna Aurora
             hue += hueDirection * 3; if(hue >= 320 || hue <= 180) hueDirection *= -1;
             ctxDraw.strokeStyle = `hsl(${hue}, 100%, 65%)`; 
             ctxDraw.shadowColor = `hsl(${hue}, 100%, 50%)`;
             ctxDraw.lineWidth = brushSizeInput.value;
             ctxDraw.lineTo(pos.canvasX, pos.canvasY); ctxDraw.stroke();
             ctxDraw.beginPath(); ctxDraw.moveTo(pos.canvasX, pos.canvasY);
-            
             updateMagnifier(pos);
         }
 
-        // Event listener Mouse & Touch
-        drawCanvas.addEventListener('mousedown', startPosition); 
-        drawCanvas.addEventListener('mouseup', endPosition);
-        drawCanvas.addEventListener('mousemove', draw); 
-        drawCanvas.addEventListener('mouseleave', endPosition);
-        
-        drawCanvas.addEventListener('touchstart', startPosition, { passive: false }); 
-        drawCanvas.addEventListener('touchend', endPosition, { passive: false });
+        drawCanvas.addEventListener('mousedown', startPosition); drawCanvas.addEventListener('mouseup', endPosition);
+        drawCanvas.addEventListener('mousemove', draw); drawCanvas.addEventListener('mouseleave', endPosition);
+        drawCanvas.addEventListener('touchstart', startPosition, { passive: false }); drawCanvas.addEventListener('touchend', endPosition, { passive: false });
         drawCanvas.addEventListener('touchmove', draw, { passive: false });
-        // Kalau jari keluar batas kanvas di HP
         drawCanvas.addEventListener('touchcancel', endPosition, { passive: false });
 
-        // 3. PROSES AI (GEMINI VISION INPAINTING)
+        // PROSES CLIPDROP API
         btnProcess.addEventListener('click', async () => {
             const pixelBuffer = new Uint32Array(ctxDraw.getImageData(0, 0, drawCanvas.width, drawCanvas.height).data.buffer);
             if(!pixelBuffer.some(color => color !== 0)) return showNotification("Usap dulu objek yang mau dihapus Bos!", true);
             
-            btnProcess.innerHTML = '<i class="fas fa-brain fa-spin mr-2"></i>AI Sedang Bekerja...';
-            btnProcess.disabled = true; 
-            btnProcess.classList.add('opacity-80', 'loader-pulse');
-            showNotification("Mengirim data ke Server AI...", false);
+            btnProcess.innerHTML = '<i class="fas fa-cog fa-spin mr-2"></i>Server Memproses...';
+            btnProcess.disabled = true; btnProcess.classList.add('opacity-80', 'loader-pulse');
+            showNotification("Mengirim gambar ke Server Clipdrop...", false);
 
             try {
-                // Tumpuk gambar asli dengan coretan neon
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = drawCanvas.width;
-                tempCanvas.height = drawCanvas.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(imgCanvas, 0, 0);
-                tempCtx.drawImage(drawCanvas, 0, 0); 
+                // 1. Ekstrak gambar asli ke format Blob
+                const imageBlob = await new Promise(resolve => imgCanvas.toBlob(resolve, 'image/jpeg', 1.0));
+
+                // 2. Buat Masking Khusus Clipdrop (Hitam Putih Pekat)
+                const maskCanvas = document.createElement('canvas');
+                maskCanvas.width = drawCanvas.width; maskCanvas.height = drawCanvas.height;
+                const maskCtx = maskCanvas.getContext('2d');
                 
-                const base64Data = tempCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+                // Latar belakang wajib hitam pekat
+                maskCtx.fillStyle = "black";
+                maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
                 
-                const promptText = "Remove the colorful painted glowing lines/marks covering the object. Seamlessly reconstruct and inpaint the background behind those marks so it looks like the original undisturbed photo. Output only the clean image without any text or explanation.";
-
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [
-                            { text: promptText },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                        ]
-                    }],
-                    generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
-                };
-
-                let delays = [1000, 2000, 4000, 8000];
-                let responseData = null;
-
-                // Fitur Exponential Backoff
-                for (let i = 0; i <= delays.length; i++) {
-                    try {
-                        const response = await fetch(url, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (!response.ok) throw new Error("Server AI Sibuk");
-                        const result = await response.json();
-                        
-                        const outBase64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                        if (!outBase64) throw new Error("Gagal mengekstrak gambar dari AI");
-
-                        responseData = `data:image/jpeg;base64,${outBase64}`;
-                        break; 
-                    } catch (err) {
-                        if (i === delays.length) throw new Error("Koneksi Time Out. Coba lagi nanti ya Bos.");
-                        showNotification(`Mencoba ulang koneksi ke Server... (${i+1})`, false);
-                        await new Promise(r => setTimeout(r, delays[i])); 
+                // Coretan harus putih pekat
+                maskCtx.drawImage(drawCanvas, 0, 0);
+                const imgData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+                for (let i = 0; i < imgData.data.length; i += 4) {
+                    // Kalau pikselnya bukan murni hitam (ada coretan)
+                    if (imgData.data[i] > 0 || imgData.data[i+1] > 0 || imgData.data[i+2] > 0) {
+                        imgData.data[i] = 255;   // R
+                        imgData.data[i+1] = 255; // G
+                        imgData.data[i+2] = 255; // B
+                        imgData.data[i+3] = 255; // Alpha
                     }
                 }
+                maskCtx.putImageData(imgData, 0, 0);
+                const maskBlob = await new Promise(resolve => maskCanvas.toBlob(resolve, 'image/png'));
 
-                // Tampilkan Hasil Sukses
-                resultImage.src = responseData;
-                document.getElementById('btn-download').href = responseData;
+                // 3. Kirim ke Clipdrop Server
+                const formData = new FormData();
+                formData.append('image_file', imageBlob);
+                formData.append('mask_file', maskBlob);
+
+                const response = await fetch('https://clipdrop.co/api/v1/cleanup', {
+                    method: 'POST',
+                    headers: { 'x-api-key': CLIPDROP_API_KEY },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    if(response.status === 402 || response.status === 403) throw new Error("Error: Limit API gratisan Clipdrop kamu sudah habis!");
+                    throw new Error("Server Clipdrop sedang bermasalah. Coba lagi.");
+                }
+
+                // 4. Tampilkan Hasil
+                const resultBlob = await response.blob();
+                const resultUrl = URL.createObjectURL(resultBlob);
+                
+                resultImage.src = resultUrl;
+                document.getElementById('btn-download').href = resultUrl;
                 
                 resultArea.classList.remove('hidden');
                 resultArea.classList.add('flex');
+                setTimeout(() => resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
                 
-                setTimeout(() => {
-                    resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 300);
-                
-                showNotification("Magic! Objek berhasil dihapus!");
+                showNotification("Magic! Objek berhasil dihapus dengan rapi!");
 
             } catch (error) {
                 console.error(error);
                 showNotification(error.message, true);
             } finally {
                 btnProcess.innerHTML = '<i class="fas fa-magic mr-2"></i>Hapus Objek';
-                btnProcess.disabled = false; 
-                btnProcess.classList.remove('opacity-80', 'loader-pulse');
+                btnProcess.disabled = false; btnProcess.classList.remove('opacity-80', 'loader-pulse');
             }
         });
 
