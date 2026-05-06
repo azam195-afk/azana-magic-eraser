@@ -19,39 +19,74 @@
         }
     </script>
     <style>
-        body { 
-            background-color: #050508; 
-            color: #cbd5e1; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            margin: 0;
-            position: relative;
+        /* Dasar tampilan sesuai permintaan */
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; min-height: 100%;
+            background-color: #050508;
+            color: #cbd5e1;
             overflow-x: hidden;
         }
 
-        /* Background Cyber Matrix Bergerak */
-        body::after {
+        /* Efek cahaya neon halus di pojok layar */
+        body::before {
             content: "";
             position: fixed;
             inset: 0;
-            z-index: -1;
-            opacity: 0.15;
-            background-image: 
-                linear-gradient(rgba(0, 242, 254, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(188, 19, 254, 0.3) 1px, transparent 1px);
-            background-size: 45px 45px;
-            animation: matrixMove 40s linear infinite;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(188, 19, 254, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(0, 242, 254, 0.12) 0%, transparent 45%);
+            z-index: 1;
+            filter: blur(80px);
+            pointer-events: none;
         }
 
-        @keyframes matrixMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 450px 450px; }
+        /* Canvas utama Background */
+        #neural-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            display: block;
+            opacity: 0.7;
         }
 
-        .glass-card { background: rgba(10, 10, 15, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: rgba(10, 10, 15, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
         
-        .canvas-wrapper { position: relative; display: inline-block; max-width: 100%; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 0 20px rgba(0, 242, 254, 0.15); cursor: crosshair; }
+        /* Kotak Upload 1:1 Transparan & Glow */
+        .upload-square {
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(0, 242, 254, 0.3);
+            border-radius: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .upload-square:hover {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.05);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2), inset 0 0 15px rgba(0, 242, 254, 0.1);
+            transform: scale(1.02);
+        }
+
+        /* Canvas Wrapper Fix agar tidak ada kolom hitam */
+        .canvas-wrapper { 
+            position: relative; 
+            display: inline-block; 
+            max-width: 100%; 
+            border-radius: 1rem; 
+            overflow: hidden; 
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5); 
+            cursor: crosshair;
+            line-height: 0; /* Menghapus whitespace di bawah image */
+        }
         #image-canvas { display: block; max-width: 100%; height: auto; }
         #draw-canvas { position: absolute; top: 0; left: 0; touch-action: none; width: 100%; height: 100%; }
         
@@ -66,15 +101,14 @@
 
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #00f2fe; cursor: pointer; box-shadow: 0 0 10px #00f2fe; margin-top: -8px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #1c1c26; border-radius: 2px; border: 1px solid rgba(0,242,254,0.3); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #1c1c26; border-radius: 2px; }
 
-        .loader-pulse { animation: pulseGlow 1.5s infinite alternate; }
-        @keyframes pulseGlow { 0% { opacity: 0.6; filter: drop-shadow(0 0 5px #00f2fe); } 100% { opacity: 1; filter: drop-shadow(0 0 15px #bc13fe); } }
-        
         .safe-italic { padding-right: 0.3em; display: inline-block; }
     </style>
 </head>
-<body class="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-dark-800 to-dark-900">
+<body>
+
+    <canvas id="neural-bg"></canvas>
 
     <div id="magnifier" class="hidden fixed flex items-center justify-center">
         <canvas id="loupe-canvas" width="110" height="110"></canvas>
@@ -87,8 +121,8 @@
 
     <div class="flex-grow flex flex-col items-center p-4 md:p-6 w-full relative z-10">
         
-        <header class="text-center w-full max-w-3xl mt-4 mb-6 flex flex-col items-center">
-            <div class="w-12 h-12 rounded-xl bg-dark-800 border border-neon-cyan/50 flex items-center justify-center text-neon-cyan shadow-[0_0_15px_rgba(0,242,254,0.3)] mb-2">
+        <header class="text-center w-full max-w-3xl mt-4 mb-8 flex flex-col items-center">
+            <div class="w-12 h-12 rounded-xl bg-dark-800 border border-neon-cyan/50 flex items-center justify-center text-neon-cyan shadow-[0_0_15px_rgba(0,242,254,0.3)] mb-4">
                 <i class="fas fa-eraser text-xl"></i>
             </div>
             <h1 class="text-2xl md:text-5xl font-tech font-bold text-white tracking-widest uppercase italic leading-tight">
@@ -99,54 +133,55 @@
             </p>
         </header>
 
-        <main class="w-full max-w-4xl glass-card rounded-[2rem] p-4 md:p-8 shadow-2xl relative overflow-hidden flex flex-col items-center">
+        <main class="w-full max-w-4xl flex flex-col items-center">
             
-            <div id="upload-area" onclick="document.getElementById('file-input').click()" class="w-full border-2 border-dashed border-white/5 hover:border-neon-cyan/50 rounded-2xl p-10 text-center transition-all duration-300 bg-dark-900/40 cursor-pointer group">
+            <!-- Kotak Upload 1:1 -->
+            <div id="upload-area" onclick="document.getElementById('file-input').click()" class="upload-square group">
                 <input type="file" id="file-input" class="hidden" accept="image/*">
-                <div class="w-16 h-16 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-neon-purple group-hover:text-neon-cyan transition-all shadow-[0_0_20px_rgba(188,19,254,0.2)] border border-white/5">
-                    <i class="fas fa-upload"></i>
+                <div class="w-16 h-16 bg-dark-800 rounded-2xl flex items-center justify-center mb-6 text-3xl text-neon-purple group-hover:text-neon-cyan transition-all border border-white/5">
+                    <i class="fas fa-arrow-up-from-bracket"></i>
                 </div>
                 <h3 class="text-lg font-bold text-white mb-1 font-tech uppercase tracking-widest">Pilih Foto Mentah</h3>
-                <p class="text-slate-500 text-[10px] font-tech tracking-widest uppercase">Klik untuk mulai mengedit</p>
+                <p class="text-slate-500 text-[10px] font-tech tracking-widest uppercase opacity-60">Klik untuk mulai mengedit</p>
             </div>
 
             <div id="editor-area" class="hidden w-full flex-col items-center">
-                <div class="w-full max-w-md flex items-center justify-between gap-3 mb-4 bg-dark-950 p-3 rounded-xl border border-white/5">
+                <div class="w-full max-w-md flex items-center justify-between gap-3 mb-6 bg-dark-950/80 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
                     <div class="flex items-center gap-3 flex-grow">
                         <i class="fas fa-paint-brush text-neon-cyan text-sm"></i>
                         <input type="range" id="brush-size" min="10" max="80" value="30" class="flex-grow w-full">
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-undo" class="text-[10px] text-yellow-400 hover:text-yellow-300 px-3 py-2 bg-yellow-400/10 rounded-lg border border-yellow-400/20 transition whitespace-nowrap uppercase font-tech">
-                            <i class="fas fa-undo"></i>
+                        <button id="btn-undo" class="w-9 h-9 flex items-center justify-center text-yellow-400 bg-yellow-400/10 rounded-lg border border-yellow-400/20 hover:bg-yellow-400/20 transition">
+                            <i class="fas fa-undo text-xs"></i>
                         </button>
-                        <button id="btn-clear" class="text-[10px] text-red-400 hover:text-red-300 px-3 py-2 bg-red-400/10 rounded-lg border border-red-400/20 transition whitespace-nowrap uppercase font-tech">
-                            <i class="fas fa-trash-alt"></i>
+                        <button id="btn-clear" class="w-9 h-9 flex items-center justify-center text-red-400 bg-red-400/10 rounded-lg border border-red-400/20 hover:bg-red-400/20 transition">
+                            <i class="fas fa-trash-alt text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="canvas-wrapper bg-dark-900" id="canvas-wrapper">
+                <div class="canvas-wrapper bg-black" id="canvas-wrapper">
                     <canvas id="image-canvas"></canvas>
                     <canvas id="draw-canvas"></canvas>
                 </div>
 
                 <div class="mt-8 flex gap-3 w-full max-w-md">
-                    <button onclick="location.reload()" class="flex-1 py-3 px-2 rounded-2xl border border-white/5 text-slate-400 font-bold hover:bg-dark-800 transition text-[10px] uppercase tracking-widest font-tech">
-                        <i class="fas fa-redo mr-1"></i> Ganti
+                    <button onclick="location.reload()" class="flex-1 py-4 px-2 rounded-2xl border border-white/10 text-slate-400 font-bold hover:bg-dark-800 transition text-[10px] uppercase tracking-widest font-tech">
+                        <i class="fas fa-redo mr-2"></i> Ganti
                     </button>
-                    <button id="btn-process" class="flex-[2] bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-3 px-4 rounded-2xl shadow-[0_10px_20px_rgba(0,242,254,0.2)] hover:scale-105 transition-all text-[10px] uppercase tracking-widest font-tech flex justify-center items-center">
+                    <button id="btn-process" class="flex-[2] bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-4 px-4 rounded-2xl shadow-[0_10px_20px_rgba(0,242,254,0.3)] hover:scale-105 transition-all text-[11px] uppercase tracking-widest font-tech flex justify-center items-center">
                         <i class="fas fa-magic mr-2"></i> Hapus Objek
                     </button>
                 </div>
             </div>
 
-            <div id="result-area" class="hidden w-full flex-col items-center mt-6 border-t border-white/5 pt-8">
+            <div id="result-area" class="hidden w-full flex-col items-center mt-10 border-t border-white/5 pt-10">
                 <h3 class="text-white font-tech tracking-[0.2em] text-xl uppercase mb-6 font-bold italic"><i class="fas fa-check-circle text-neon-cyan mr-2"></i>Hasil Akhir</h3>
                 <div class="relative rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(188,19,254,0.2)] mb-8 border border-white/5">
                     <img id="result-image" src="" alt="Hasil Akhir" class="max-w-full h-auto">
                 </div>
-                <a id="btn-download" href="#" download="AZANA_MagicEraser_Result.jpg" class="w-full max-w-md text-center bg-dark-800 border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan hover:text-dark-950 font-bold py-4 px-4 rounded-2xl transition-all shadow-[0_0_15px_rgba(0,242,254,0.2)] font-tech tracking-widest text-sm uppercase">
+                <a id="btn-download" href="#" download="AZANA_MagicEraser_Result.jpg" class="w-full max-w-md text-center bg-dark-900 border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan hover:text-dark-950 font-bold py-5 px-4 rounded-2xl transition-all shadow-[0_0_15px_rgba(0,242,254,0.2)] font-tech tracking-widest text-sm uppercase">
                     <i class="fas fa-download mr-2"></i>Simpan Gambar HD
                 </a>
             </div>
@@ -206,8 +241,89 @@
         </div>
     </div>
 </footer>
-    
+
     <script>
+        // --- NEURAL BACKGROUND SCRIPT (DARI PERMINTAAN) ---
+        const bgCanvas = document.getElementById('neural-bg');
+        const bgCtx = bgCanvas.getContext('2d');
+        
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', () => {
+            resizeBgCanvas();
+            initNodes();
+        });
+        
+        resizeBgCanvas();
+
+        const particlesArray = [];
+        const colors = ['#00f2fe', '#bc13fe']; 
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() * 0.5) - 0.25;
+                this.speedY = (Math.random() * 0.5) - 0.25;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > bgCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > bgCanvas.height) this.speedY *= -1;
+            }
+            draw() {
+                bgCtx.fillStyle = this.color;
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+        }
+
+        function initNodes() {
+            particlesArray.length = 0;
+            let numberOfParticles = (bgCanvas.height * bgCanvas.width) / 9500;
+            if (numberOfParticles > 130) numberOfParticles = 130;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateNodes() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        bgCtx.beginPath();
+                        bgCtx.strokeStyle = particlesArray[i].color;
+                        bgCtx.globalAlpha = 1 - (distance / 150);
+                        bgCtx.lineWidth = 0.6;
+                        bgCtx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        bgCtx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        bgCtx.stroke();
+                        bgCtx.globalAlpha = 1;
+                    }
+                }
+            }
+            requestAnimationFrame(animateNodes);
+        }
+
+        window.onload = function() {
+            initNodes();
+            animateNodes();
+        };
+
+        // --- EDITOR LOGIC (FIXED) ---
         const CLIPDROP_API_KEY = "ae50f97a39406075707c40fceeedbf31d9e385681146fcdceba4622d82045781742d2979374fa558a7bb8b8eee4642fa"; 
         const fileInput = document.getElementById('file-input');
         const uploadArea = document.getElementById('upload-area');
@@ -225,6 +341,7 @@
         const btnClear = document.getElementById('btn-clear');
         const btnUndo = document.getElementById('btn-undo');
         const btnProcess = document.getElementById('btn-process');
+        
         let isDrawing = false;
         let imageObj = new Image();
         let hue = 180; let hueDirection = 1;
@@ -248,22 +365,30 @@
 
         function setupCanvas() {
             const wrapper = document.getElementById('canvas-wrapper');
-            const maxWidth = wrapper.clientWidth;
+            const maxWidth = wrapper.parentElement.clientWidth - 40; 
             const scale = Math.min(1, maxWidth / imageObj.width);
             const w = imageObj.width * scale;
             const h = imageObj.height * scale;
+            
             imgCanvas.width = w; imgCanvas.height = h;
             ctxImg.drawImage(imageObj, 0, 0, w, h);
+            
             drawCanvas.width = w; drawCanvas.height = h;
-            ctxDraw.lineCap = 'round'; ctxDraw.lineJoin = 'round'; ctxDraw.shadowBlur = 10;
+            ctxDraw.lineCap = 'round'; ctxDraw.lineJoin = 'round';
+            
             brushHistory = []; saveState();
         }
 
         function getPos(evt) {
             const rect = drawCanvas.getBoundingClientRect();
             let clientX, clientY;
-            if (evt.touches && evt.touches.length > 0) { clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY; } 
-            else { clientX = evt.clientX; clientY = evt.clientY; }
+            if (evt.touches && evt.touches.length > 0) { 
+                clientX = evt.touches[0].clientX; 
+                clientY = evt.touches[0].clientY; 
+            } else { 
+                clientX = evt.clientX; 
+                clientY = evt.clientY; 
+            }
             return {
                 canvasX: (clientX - rect.left) * (drawCanvas.width / rect.width),
                 canvasY: (clientY - rect.top) * (drawCanvas.height / rect.height),
@@ -272,7 +397,7 @@
         }
 
         function saveState() {
-            if (brushHistory.length > 15) brushHistory.shift(); 
+            if (brushHistory.length > 20) brushHistory.shift(); 
             brushHistory.push(ctxDraw.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
         }
 
@@ -282,7 +407,7 @@
 
         btnClear.addEventListener('click', () => {
             ctxDraw.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            brushHistory = []; saveState();
+            saveState();
         });
 
         function updateMagnifier(pos) {
@@ -296,30 +421,50 @@
             ctxLoupe.drawImage(drawCanvas, srcX, srcY, srcW, srcH, 0, 0, loupeSize, loupeSize);
         }
 
-        function startPosition(e) { e.preventDefault(); isDrawing = true; magnifier.classList.remove('hidden'); draw(e); }
-        function endPosition(e) { e.preventDefault(); if (!isDrawing) return; isDrawing = false; magnifier.classList.add('hidden'); ctxDraw.beginPath(); saveState(); }
-        function draw(e) {
-            if (!isDrawing) return; e.preventDefault();
+        function startPosition(e) { 
+            e.preventDefault(); 
+            isDrawing = true; 
+            magnifier.classList.remove('hidden'); 
             const pos = getPos(e);
-            hue += hueDirection * 3; if(hue >= 320 || hue <= 180) hueDirection *= -1;
-            ctxDraw.strokeStyle = `hsl(${hue}, 100%, 65%)`; 
-            ctxDraw.shadowColor = `hsl(${hue}, 100%, 50%)`;
+            ctxDraw.beginPath();
+            ctxDraw.moveTo(pos.canvasX, pos.canvasY);
+            draw(e); 
+        }
+
+        function endPosition(e) { 
+            if (!isDrawing) return;
+            isDrawing = false; 
+            magnifier.classList.add('hidden'); 
+            saveState(); 
+        }
+
+        function draw(e) {
+            if (!isDrawing) return; 
+            e.preventDefault();
+            const pos = getPos(e);
+            
+            hue += hueDirection * 2; if(hue >= 300 || hue <= 180) hueDirection *= -1;
+            ctxDraw.strokeStyle = `hsl(${hue}, 100%, 60%)`; 
             ctxDraw.lineWidth = brushSizeInput.value;
-            ctxDraw.lineTo(pos.canvasX, pos.canvasY); ctxDraw.stroke();
-            ctxDraw.beginPath(); ctxDraw.moveTo(pos.canvasX, pos.canvasY);
+            
+            ctxDraw.lineTo(pos.canvasX, pos.canvasY); 
+            ctxDraw.stroke();
             updateMagnifier(pos);
         }
 
-        drawCanvas.addEventListener('mousedown', startPosition); drawCanvas.addEventListener('mouseup', endPosition);
-        drawCanvas.addEventListener('mousemove', draw); drawCanvas.addEventListener('mouseleave', endPosition);
-        drawCanvas.addEventListener('touchstart', startPosition, { passive: false }); drawCanvas.addEventListener('touchend', endPosition, { passive: false });
+        drawCanvas.addEventListener('mousedown', startPosition); 
+        drawCanvas.addEventListener('mouseup', endPosition);
+        drawCanvas.addEventListener('mousemove', draw); 
+        drawCanvas.addEventListener('mouseleave', endPosition);
+        drawCanvas.addEventListener('touchstart', startPosition, { passive: false }); 
+        drawCanvas.addEventListener('touchend', endPosition, { passive: false });
         drawCanvas.addEventListener('touchmove', draw, { passive: false });
 
         btnProcess.addEventListener('click', async () => {
-            btnProcess.innerHTML = '<i class="fas fa-cog fa-spin mr-2"></i>Processing...';
+            btnProcess.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>MENGHAPUS...';
             btnProcess.disabled = true;
             try {
-                const imageBlob = await new Promise(resolve => imgCanvas.toBlob(resolve, 'image/jpeg', 1.0));
+                const imageBlob = await new Promise(resolve => imgCanvas.toBlob(resolve, 'image/jpeg', 0.95));
                 const maskCanvas = document.createElement('canvas');
                 maskCanvas.width = drawCanvas.width; maskCanvas.height = drawCanvas.height;
                 const maskCtx = maskCanvas.getContext('2d');
@@ -342,13 +487,15 @@
                     headers: { 'x-api-key': CLIPDROP_API_KEY },
                     body: formData
                 });
+                if (!response.ok) throw new Error("Gagal memproses gambar. Pastikan kuota API masih ada.");
                 const resultBlob = await response.blob();
                 const resultUrl = URL.createObjectURL(resultBlob);
                 resultImage.src = resultUrl;
                 document.getElementById('btn-download').href = resultUrl;
                 resultArea.classList.remove('hidden');
                 resultArea.classList.add('flex');
-            } catch (error) { alert("Error: " + error.message); } 
+                resultArea.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) { alert(error.message); } 
             finally { btnProcess.innerHTML = '<i class="fas fa-magic mr-2"></i>Hapus Objek'; btnProcess.disabled = false; }
         });
     </script>
